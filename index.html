@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Lipsu</title>
+    <style>
+        :root {
+            --sky-blue: #87CEEB;
+            --chocolate: #7B3F00;
+            --pink: #ff69b4;
+        }
+        body, html { margin: 0; padding: 0; font-family: 'Arial', sans-serif; overflow-x: hidden; }
+        
+        /* Landing Page */
+        #landing-page {
+            height: 100vh;
+            background-color: var(--sky-blue);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .main-msg { font-style: italic; font-size: 3rem; color: white; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .sub-msg { font-size: 1.2rem; max-width: 700px; line-height: 1.6; color: #333; }
+        #nav-btn { position: absolute; top: 20px; right: 20px; padding: 12px 24px; background: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        /* Game Page */
+        #game-page { display: none; background: #fff5f8; min-height: 100vh; text-align: center; padding-top: 50px; }
+        #dice-msg { height: 40px; font-size: 1.5rem; color: var(--pink); font-weight: bold; margin-bottom: 10px; }
+        
+        #board {
+            width: 500px; height: 500px; margin: 0 auto; border: 8px solid var(--chocolate);
+            display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr);
+            position: relative; background: #fff;
+        }
+        .cell { border: 1px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #ccc; position: relative; }
+        .chocolate-cell { background-color: rgba(123, 63, 0, 0.1); }
+        
+        #token {
+            width: 40px; height: 40px; font-size: 30px; position: absolute;
+            transition: all 0.5s ease-in-out; z-index: 10; display: flex; align-items: center; justify-content: center;
+        }
+
+        #controls { margin-top: 30px; }
+        #roll-btn { padding: 15px 40px; font-size: 1.2rem; background: var(--pink); color: white; border: none; border-radius: 10px; cursor: pointer; }
+
+        /* Modals */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 40px; border-radius: 20px; box-shadow: 0 0 100px rgba(0,0,0,0.3); z-index: 100; text-align: center; }
+        .cake-img { font-size: 100px; margin-bottom: 20px; }
+        .box-btn { background: gold; padding: 15px 30px; cursor: pointer; border-radius: 10px; display: inline-block; font-weight: bold; margin-top: 15px; }
+
+        @media (max-width: 550px) { #board { width: 90vw; height: 90vw; } }
+    </style>
+</head>
+<body>
+
+    <div id="landing-page">
+        <button id="nav-btn" onclick="goToGame()">Play Game →</button>
+        <h1 class="main-msg">Happiest Birthday LIPSU</h1>
+        <p class="sub-msg">
+            i love you a lot that every friendship i make is just inspired by you, i literally look for you in everyone, i don't express how much i love you and also am not even texting you consistently to let you know how special you are for me i am sorry and i will always be sorry but the fact will always remain same that i love you
+        </p>
+    </div>
+
+    <div id="game-page">
+        <div id="dice-msg">Roll the dice to start!</div>
+        <div id="board">
+            <div id="token">😊</div>
+            </div>
+        <div id="controls">
+            <button id="roll-btn" onclick="rollDice()">Roll Dice 🎲</button>
+        </div>
+    </div>
+
+    <div id="cake-modal" class="modal">
+        <div class="cake-img">🎂</div>
+        <div class="box-btn" onclick="showBoxResult()">click me</div>
+    </div>
+
+    <div id="msg-modal" class="modal">
+        <h1>Happiest birthday</h1>
+        <div class="box-btn" onclick="showSurprise()">Wanna See a Surprise</div>
+    </div>
+
+    <div id="surprise-modal" class="modal">
+        <a href="https://drive.google.com/file/d/1KPbGb38LCNX9SCDRb0LqVR3CW-eCASh1/view?usp=drivesdk" target="_blank" style="color: var(--pink); font-size: 1.5rem; text-decoration: none; font-weight: bold;">
+            🎁 Click Here for your Surprise!
+        </a>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const token = document.getElementById('token');
+        const diceMsg = document.getElementById('dice-msg');
+        let currentPos = 0;
+
+        const diceValues = [1, 4, 7, 11, 12, 18];
+        const diceQuotes = {
+            1: "you will always be my best frnd",
+            4: "your birthday month ofc",
+            7: "you are my favorite person",
+            11: "the class i met you will always be the best year",
+            12: "the class we became bestfrnds",
+            18: "finally your birthday date"
+        };
+
+        // Positions for "Chocolates" (Snakes)
+        const chocolates = { 98: 40, 75: 32, 50: 15, 28: 5 };
+
+        // Generate Board (10x10)
+        for (let i = 100; i >= 1; i--) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.id = 'cell-' + i;
+            cell.innerText = i;
+            if(chocolates[i]) cell.classList.add('chocolate-cell');
+            board.appendChild(cell);
+        }
+
+        function goToGame() {
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('game-page').style.display = 'block';
+            moveToken(0);
+        }
+
+        function rollDice() {
+            const roll = diceValues[Math.floor(Math.random() * diceValues.length)];
+            diceMsg.innerText = roll + " - " + diceQuotes[roll];
+            
+            currentPos += roll;
+            if (currentPos > 100) currentPos = 100;
+
+            moveToken(currentPos);
+
+            // Handle Chocolates
+            if (chocolates[currentPos]) {
+                setTimeout(() => {
+                    diceMsg.innerText = "Oh no! A chocolate slide! 🍫";
+                    currentPos = chocolates[currentPos];
+                    moveToken(currentPos);
+                }, 800);
+            }
+
+            // Handle Win
+            if (currentPos === 100) {
+                setTimeout(() => {
+                    document.getElementById('cake-modal').style.display = 'block';
+                }, 1000);
+            }
+        }
+
+        function moveToken(pos) {
+            if (pos === 0) {
+                token.style.bottom = "0px";
+                token.style.left = "-40px";
+                return;
+            }
+            const cell = document.getElementById('cell-' + pos);
+            token.style.left = cell.offsetLeft + 'px';
+            token.style.top = cell.offsetTop + 'px';
+        }
+
+        function showBoxResult() {
+            document.getElementById('cake-modal').style.display = 'none';
+            document.getElementById('msg-modal').style.display = 'block';
+        }
+
+        function showSurprise() {
+            document.getElementById('msg-modal').style.display = 'none';
+            document.getElementById('surprise-modal').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
